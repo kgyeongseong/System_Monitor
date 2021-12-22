@@ -17,7 +17,7 @@ Globals g_Globals;
 /**
  * .
  * 
- * @param DriverObject 드라이버 객체
+ * @param  DriverObject 드라이버 객체
  * @param 
  * @return 
  */
@@ -110,13 +110,19 @@ extern "C" NTSTATUS DriverEntry(PDRIVER_OBJECT DriverObject, PUNICODE_STRING)
 	/*드라이버 언로드 콜백 함수 설정*/
 	DriverObject->DriverUnload = SysMonUnload;
 
-	/**/
 	DriverObject->MajorFunction[IRP_MJ_CREATE] = DriverObject->MajorFunction[IRP_MJ_CLOSE] = SysMonCreateClose;
 	DriverObject->MajorFunction[IRP_MJ_READ] = SysMonRead;
 
 	return status;
 }
 
+/**
+ * @fn				 void OnProcessNotify(PEPROCESS Process, HANDLE ProcessId, PPS_CREATE_NOTIFY_INFO CreateInfo)
+ * @brief			 프로세스 생성, 소멸하는 경우 실행되는 함수
+ * @param Process
+ * @param ProcessId  HANDLE == Process ID
+ * @param CreateInfo PS_CREATE_NOTIFY_INFO 구조체 포인터
+ */
 void OnProcessNotify(PEPROCESS Process, HANDLE ProcessId, PPS_CREATE_NOTIFY_INFO CreateInfo)
 {
 	UNREFERENCED_PARAMETER(Process);
@@ -194,6 +200,13 @@ void OnProcessNotify(PEPROCESS Process, HANDLE ProcessId, PPS_CREATE_NOTIFY_INFO
 	}
 }
 
+/**
+ * @fn	  void OnThreadNotify(HANDLE ProcessId, HANDLE ThreadId, BOOLEAN Create)
+ * @brief 스레드 생성, 소멸하는 경우 실행되는 함수
+ * @param ProcessId
+ * @param ThreadId
+ * @param Create
+ */
 void OnThreadNotify(HANDLE ProcessId, HANDLE ThreadId, BOOLEAN Create)
 {
 	auto size = sizeof(FullItem<ThreadCreateExitInfo>);
@@ -207,8 +220,13 @@ void OnThreadNotify(HANDLE ProcessId, HANDLE ThreadId, BOOLEAN Create)
 	* Monitoring Thread Injection
 	*/
 	if (Create) { // 스레드가 생성되었고
+		/*EPROCESS 구조체 변수 선언*/
 		PEPROCESS Process;
+
+		/*EPROCESS 구조체 참조 포인터 획득하는 함수*/
 		NTSTATUS status = PsLookupProcessByProcessId(ProcessId, &Process);
+
+		/*EPROCESS 구조체 참조 포인터 획득에 실패한 경우*/
 		if (!NT_SUCCESS(status))
 		{
 			KdPrint(("PsLookupProcessByProcessId()\n"));
@@ -225,6 +243,7 @@ void OnThreadNotify(HANDLE ProcessId, HANDLE ThreadId, BOOLEAN Create)
 			return;
 		}
 
+		/*EPROCESS 구조체에서 삽질*/
 		LPTSTR lpProcess = (LPTSTR)Process;
 		lpProcess = (LPTSTR)(lpProcess + 0x170); // ImageFileName dt _EPROCESS
 
@@ -232,9 +251,6 @@ void OnThreadNotify(HANDLE ProcessId, HANDLE ThreadId, BOOLEAN Create)
 		{
 			PEPROCESS iProcess;
 			LPTSTR lpProcessIn;
-			/**
-			*			@param idProcess				현재 프로세스 ID
-			*/
 			status = PsLookupProcessByProcessId(idProcess, &iProcess);
 			lpProcessIn = (LPTSTR)iProcess;
 			lpProcessIn = (LPTSTR)(lpProcessIn + 0x170); // ImageFIleName dt _EPROCESS
@@ -256,6 +272,13 @@ void OnThreadNotify(HANDLE ProcessId, HANDLE ThreadId, BOOLEAN Create)
 	PushItem(&info->Entry);
 }
 
+/**
+ * @fn void OnImageNotify(PUNICODE_STRING FullImageName, HANDLE ProcessId, PIMAGE_INFO ImageInfo)
+ * @brief 이미지 로드하는 경우 실행되는 함수
+ * \param FullImageName
+ * \param ProcessId
+ * \param ImageInfo IMAGE_INFO 구조체 포인터
+ */
 void OnImageNotify(PUNICODE_STRING FullImageName, HANDLE ProcessId, PIMAGE_INFO ImageInfo)
 {
 	if (ProcessId == nullptr) {
