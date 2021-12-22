@@ -22,8 +22,8 @@ void PushItem(LIST_ENTRY* entry);
 Globals g_Globals;
 
 /**
- * @fn					extern "C" NTSTATUS DriverEntry(PDRIVER_OBJECT DriverObject, PUNICODE_STRING)
- * @brief				드라이버 메인 함수
+ * @fn			extern "C" NTSTATUS DriverEntry(PDRIVER_OBJECT DriverObject, PUNICODE_STRING)
+ * @brief		드라이버 메인 함수
  * @param  DriverObject 드라이버 객체
  * @param 
  * @return 
@@ -124,8 +124,8 @@ extern "C" NTSTATUS DriverEntry(PDRIVER_OBJECT DriverObject, PUNICODE_STRING)
 }
 
 /**
- * @fn				 void OnProcessNotify(PEPROCESS Process, HANDLE ProcessId, PPS_CREATE_NOTIFY_INFO CreateInfo)
- * @brief			 프로세스 생성, 소멸하는 경우 실행되는 함수
+ * @fn		     void OnProcessNotify(PEPROCESS Process, HANDLE ProcessId, PPS_CREATE_NOTIFY_INFO CreateInfo)
+ * @brief	     프로세스 생성, 소멸하는 경우 실행되는 함수
  * @param Process
  * @param ProcessId  HANDLE == Process ID
  * @param CreateInfo PS_CREATE_NOTIFY_INFO 구조체 포인터
@@ -280,8 +280,8 @@ void OnThreadNotify(HANDLE ProcessId, HANDLE ThreadId, BOOLEAN Create)
 }
 
 /**
- * @fn void OnImageNotify(PUNICODE_STRING FullImageName, HANDLE ProcessId, PIMAGE_INFO ImageInfo)
- * @brief 이미지 로드하는 경우 실행되는 함수
+ * @fn 		    void OnImageNotify(PUNICODE_STRING FullImageName, HANDLE ProcessId, PIMAGE_INFO ImageInfo)
+ * @brief 	    이미지 로드하는 경우 실행되는 함수
  * @param FullImageName
  * @param ProcessId
  * @param ImageInfo IMAGE_INFO 구조체 포인터
