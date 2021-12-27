@@ -27,7 +27,7 @@ Globals g_Globals;
 
 /**
  * @fn			extern "C" NTSTATUS DriverEntry(PDRIVER_OBJECT DriverObject, PUNICODE_STRING)
- * @brief		드라이버 메인 함수
+ * @brief		드라이버 메인 함수 (Driver Main Function)
  * @param  DriverObject 드라이버 객체
  * @param 
  * @return 
@@ -49,52 +49,64 @@ extern "C" NTSTATUS DriverEntry(PDRIVER_OBJECT DriverObject, PUNICODE_STRING)
 		UNICODE_STRING devName = RTL_CONSTANT_STRING(L"\\Device\\sysmon");
 
 		/*디바이스 객체 생성*/
+		/*Create device object*/
 		status                 = IoCreateDevice(DriverObject, 0, &devName, FILE_DEVICE_UNKNOWN, 0, TRUE, &DeviceObject);
 
 		/*디바이스 객체 생성에 실패한 경우*/
+		/*When device object creation fails*/
 		if (!NT_SUCCESS(status)) {
 			KdPrint((DRIVER_PREFIX "failed to create device (0x%08X)\n", status));
 			break;
 		}
 
 		/*디바이스 객체를 Direct I/O으로 설정*/
+		/*Set device object to Direct I/O*/
 		DeviceObject->Flags |= DO_DIRECT_IO; // DO == Device Object
 
 		/*디바이스 객체의 심볼릭 링크 생성*/
+		/*Create a symbolic link for a device object*/
 		status = IoCreateSymbolicLink(&symLink, &devName);
 
 		/*디바이스 객체의 심볼릭 링크 생성에 실패한 경우*/
+		/*Failed to create symbolic link of device object*/
 		if (!NT_SUCCESS(status)) {
 			KdPrint((DRIVER_PREFIX "failed to create sym link (0x%08X)\n", status));
 			break;
 		}
 
 		/*디바이스 객체 생성 체크*/
+		/*Check device object creation*/
 		symLinkCreated = true;
 
 		/*프로세스 생성, 소멸 알림 콜백 함수 등록*/
+		/*Register process creation, destruction, and notification callback function*/
 		// register for process notifications
 		status = PsSetCreateProcessNotifyRoutineEx(OnProcessNotify, FALSE);
 
 		/*프로세스 생성, 소멸 알림 콜백 함수 등록에 실패한 경우*/
+		/*When registration of process creation and destruction notification callback function fails*/
 		if (!NT_SUCCESS(status)) {
 			KdPrint((DRIVER_PREFIX "failed to register process callback (0x%08X)\n", status));
 			break;
 		}
 
 		/*스레드 생성, 소멸 알림 콜백 함수 등록*/
+		/*Register thread creation and destruction notification callback function*/
 		status = PsSetCreateThreadNotifyRoutine(OnThreadNotify);
 
 		/*스레드 생성, 소멸 알림 콜백 함수 등록에 실패한 경우*/
+		/*When registration of thread creation and destruction notification callback function fails*/
 		if (!NT_SUCCESS(status)) {
 			KdPrint((DRIVER_PREFIX "failed to set thread callbacks (status=%08X)\n", status));
 			break;
 		}
 
 		/*이미지 로드 알림 콜백 함수 등록*/
+		/*Register image load notification callback function*/
 		status = PsSetLoadImageNotifyRoutine(OnImageNotify);
 
 		/*이미지 로드 알림 콜백 함수 등록에 실패한 경우*/
+		/*When registration of image load notification callback function fails*/
 		if (!NT_SUCCESS(status)) {
 			KdPrint((DRIVER_PREFIX "failed to set load image callbacks (status=%08X)\n", status));
 			break;
