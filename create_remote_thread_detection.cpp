@@ -6,15 +6,19 @@
 
 // prototypes
 /*드라이버 언로드 콜백 함수*/
+/*Driver Unload Callback Function*/
 DRIVER_UNLOAD SysMonUnload;
 
 DRIVER_DISPATCH SysMonCreateClose, SysMonRead;
 
 /*프로세스 생성, 소멸하는 경우 실행되는 함수*/
+/*Functions that are executed when a process is created or destroyed*/
 void OnProcessNotify(PEPROCESS Process, HANDLE ProcessId, PPS_CREATE_NOTIFY_INFO CreateInfo);
 /*스레드 생성, 소멸하는 경우 실행되는 함수*/
+/*A function that is executed when a thread is created or destroyed*/
 void OnThreadNotify(HANDLE ProcessId, HANDLE ThreadId, BOOLEAN Create);
 /*이미지 로드하는 경우 실행되는 함수*/
+/*Function executed when image is loaded*/
 void OnImageNotify(PUNICODE_STRING FullImageName, HANDLE ProcessId, PIMAGE_INFO ImageInfo);
 
 void PushItem(LIST_ENTRY* entry);
