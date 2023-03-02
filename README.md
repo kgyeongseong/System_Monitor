@@ -4,6 +4,6 @@ CreateInfo->CreationStatus = STATUS_ACCESS_DENIED;<br><br>
 <img src="https://github.com/kgyeongseong/System_Monitor/blob/main/block_process_execution.png" width="96%">
 
 <h1>create_remote_thread_detection</h1>
-EPROCESS 구조체의 ActiveThreads 필드 이용 CreateRemoteThread 감지<br><br>
+EPROCESS 구조체의 ActiveThreads 필드 이용 CreateRemoteThread 탐지 <br><br>
 <img src="https://github.com/kgyeongseong/System_Monitor/blob/main/create_remote_thread_detection_1.png" width="96%">
 <img src="https://github.com/kgyeongseong/System_Monitor/blob/main/create_remote_thread_detection_2.png" width="96%">
